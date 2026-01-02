@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model TranslationHistory {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  sourceText    String
+  translatedText String
+  sourceLang    String   @default("auto")
+  targetLang    String
+  modelUsed     String
+}
+
+model Vocabulary {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  word            String
+  definition      String
+  contextSentence String?
+  sourceLang      String?
+  targetLang      String?
+  tags            String?  // stored as comma separated or JSON if needed, simple string for now
+}
