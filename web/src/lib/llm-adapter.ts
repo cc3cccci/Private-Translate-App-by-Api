@@ -12,6 +12,20 @@ export const getProviderConfig = (model: string): LLMConfig | null => {
 
     const env = process.env;
 
+    // Check Custom Provider Slots (1-3)
+    for (let i = 1; i <= 3; i++) {
+        const models = env[`CUSTOM_${i}_MODELS`];
+        if (models) {
+            const modelList = models.split(',').map(m => m.split(':')[0].trim());
+            if (modelList.includes(model)) {
+                return {
+                    apiKey: env[`CUSTOM_${i}_KEY`] || '',
+                    baseURL: env[`CUSTOM_${i}_BASE_URL`] || '',
+                };
+            }
+        }
+    }
+
     if (model.includes('deepseek')) {
         return {
             apiKey: env.DEEPSEEK_KEY || '',
@@ -33,10 +47,10 @@ export const getProviderConfig = (model: string): LLMConfig | null => {
         };
     }
 
-    // Default to OpenAI
+    // Default to OpenAI or Custom Provider
     return {
-        apiKey: env.OPENAI_KEY || '',
-        baseURL: 'https://api.openai.com/v1',
+        apiKey: env.CUSTOM_API_KEY || env.OPENAI_KEY || '',
+        baseURL: env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
     };
 };
 

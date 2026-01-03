@@ -2,12 +2,21 @@
 
 
 
+const CUSTOM_MODELS = (process.env.NEXT_PUBLIC_CUSTOM_MODELS || "")
+    .split(",")
+    .filter(Boolean)
+    .map(m => {
+        const [id, name] = m.split(":");
+        return { id: id.trim(), name: name ? name.trim() : id.trim() };
+    });
+
 const MODELS = [
     { id: "gpt-3.5-turbo", name: "OpenAI GPT-3.5" },
     { id: "gpt-4-turbo", name: "OpenAI GPT-4" },
     { id: "deepseek-chat", name: "DeepSeek Chat" },
     { id: "grok-beta", name: "Grok Beta" },
     { id: "qwen-turbo", name: "Qwen Turbo" },
+    ...CUSTOM_MODELS
 ];
 
 interface ModelSelectorProps {
