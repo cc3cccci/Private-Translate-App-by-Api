@@ -27,7 +27,7 @@ export default function HistorySidebar({ onSelect, refreshTrigger }: HistorySide
     const fetchHistory = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/history");
+            const res = await fetch(`/api/history?t=${Date.now()}`); // Cache busting
             if (res.ok) {
                 const data = await res.json();
                 setHistory(data);

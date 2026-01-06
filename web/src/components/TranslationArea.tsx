@@ -1,29 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ModelSelector from "./ModelSelector";
 
 interface TranslationAreaProps {
     onTranslationComplete: () => void;
-    initialSource?: string;
-    initialTarget?: string;
+    selectedItem?: { sourceText: string; translatedText: string; sourceLang: string; targetLang: string; } | null;
 }
 
-export default function TranslationArea({ onTranslationComplete }: TranslationAreaProps) {
+export default function TranslationArea({ onTranslationComplete, selectedItem }: TranslationAreaProps) {
     const [sourceText, setSourceText] = useState("");
     const [translatedText, setTranslatedText] = useState("");
+    const [synonyms, setSynonyms] = useState<string[]>([]);
+    const [similar, setSimilar] = useState<string[]>([]);
+    const [definition, setDefinition] = useState("");
+    const [vocabSaved, setVocabSaved] = useState(false);
     const [sourceLang, setSourceLang] = useState("auto");
     const [targetLang, setTargetLang] = useState("en"); // Default to English or keep it logical
     const [model, setModel] = useState("gpt-3.5-turbo"); // Default key from adapter
     const [loading, setLoading] = useState(false);
 
-    // Expose a way to set text externally if needed (via ref or just prop updates, but strict react flow is better)
-    // For now, if we want history selection to update this, we might need to lift state up to Page.
-    // I will assume the parent passes props, but for now I'll implement local state handling.
-    // Actually, to make "onSelect" from HistorySidebar work, Page needs to hold the state.
-    // I will refactor Page to hold state and pass it down.
-    // So this component should largely be controlled or have a `forceUpdate` mechanism.
-    // I'll stick to props for values.
+    // Load history item when selected
+    useEffect(() => {
+        if (selectedItem) {
+            setSourceText(selectedItem.sourceText);
+            setTranslatedText(selectedItem.translatedText);
+            setSourceLang(selectedItem.sourceLang);
+            setTargetLang(selectedItem.targetLang);
+            // Reset rich data since we don't store it in history yet (MVP limitation)
+            setSynonyms([]);
+            setSimilar([]);
+            setDefinition("");
+        }
+    }, [selectedItem]);
 
     const handleTranslate = async () => {
         if (!sourceText.trim()) return;
@@ -42,6 +51,11 @@ export default function TranslationArea({ onTranslationComplete }: TranslationAr
             const data = await res.json();
             if (data.result) {
                 setTranslatedText(data.result);
+                // Handle rich data defaults
+                setSynonyms(data.synonyms || []);
+                setSimilar(data.similar || []);
+                setDefinition(data.definition || "");
+                setVocabSaved(false); // Reset save state for new translation
                 onTranslationComplete();
             } else if (data.error) {
                 alert("Error: " + data.error);
@@ -54,19 +68,26 @@ export default function TranslationArea({ onTranslationComplete }: TranslationAr
         }
     };
 
-    const saveToVocab = async (word: string, definition: string, context: string) => {
-        await fetch("/api/vocabulary", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                word,
-                definition,
-                contextSentence: context,
-                sourceLang,
-                targetLang,
-            }),
-        });
-        alert("Saved to vocabulary");
+    const saveToVocab = async (word: string, def: string, context: string) => {
+        try {
+            const res = await fetch("/api/vocabulary", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    word,
+                    definition: def || definition, // Use API definition if available
+                    contextSentence: context,
+                    sourceLang,
+                    targetLang,
+                }),
+            });
+            if (res.ok) {
+                setVocabSaved(true);
+                setTimeout(() => setVocabSaved(false), 3000); // Reset after 3s
+            }
+        } catch (e) {
+            console.error("Save vocab error", e);
+        }
     };
 
     return (
@@ -133,11 +154,60 @@ export default function TranslationArea({ onTranslationComplete }: TranslationAr
                 </button>
             </div>
 
-            {/* Vocabulary Action (Mockup) */}
+            {/* Rich Content Display */}
+            {(synonyms.length > 0 || similar.length > 0) && (
+                <div style={{
+                    marginTop: "1.5rem",
+                    padding: "1rem",
+                    backgroundColor: "var(--bg-secondary, #f5f5f5)",
+                    borderRadius: "8px",
+                    border: "1px solid var(--border)"
+                }}>
+                    {synonyms.length > 0 && (
+                        <div style={{ marginBottom: "1rem" }}>
+                            <h4 style={{ margin: "0 0 0.5rem 0", opacity: 0.8 }}>Synonyms / Keywords</h4>
+                            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                                {synonyms.map((s, i) => (
+                                    <span key={i} style={{
+                                        padding: "0.2rem 0.6rem",
+                                        backgroundColor: "var(--bg-tertiary, #e0e0e0)",
+                                        borderRadius: "12px",
+                                        fontSize: "0.9rem"
+                                    }}>{s}</span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {similar.length > 0 && (
+                        <div>
+                            <h4 style={{ margin: "0 0 0.5rem 0", opacity: 0.8 }}>Similar Expressions</h4>
+                            <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
+                                {similar.map((s, i) => (
+                                    <li key={i} style={{ marginBottom: "0.3rem" }}>{s}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Vocabulary Action */}
             {translatedText && (
-                <div style={{ marginTop: '1rem', textAlign: 'right' }}>
-                    <button onClick={() => saveToVocab(sourceText, translatedText, "")} style={{ fontSize: '0.8rem' }}>
-                        Add to Vocab (Whole Sentence)
+                <div style={{ marginTop: '1rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
+                    {definition && <span style={{ fontSize: '0.9rem', opacity: 0.7, fontStyle: 'italic', maxWidth: '300px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>Def: {definition}</span>}
+                    <button
+                        onClick={() => saveToVocab(sourceText, definition || translatedText, "")}
+                        disabled={vocabSaved}
+                        style={{
+                            fontSize: '0.9rem',
+                            padding: '0.5rem 1rem',
+                            backgroundColor: vocabSaved ? '#4CAF50' : '',
+                            color: vocabSaved ? 'white' : '',
+                            transition: 'all 0.3s ease'
+                        }}
+                    >
+                        {vocabSaved ? "✓ Saved" : "Add to Vocab"}
                     </button>
                 </div>
             )}

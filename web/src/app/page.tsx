@@ -5,6 +5,7 @@ import HistorySidebar from "@/components/HistorySidebar";
 import TranslationArea from "@/components/TranslationArea";
 
 export default function Home() {
+  const [historyItem, setHistoryItem] = useState<{ sourceText: string; translatedText: string; sourceLang: string; targetLang: string } | null>(null);
   const [refreshHistory, setRefreshHistory] = useState(0);
 
   const handleTranslationComplete = () => {
@@ -12,15 +13,9 @@ export default function Home() {
     setRefreshHistory((prev) => prev + 1);
   };
 
-  const handleHistorySelect = (item: { sourceText: string }) => {
-    // In a real implementation, we would pass this down toTranslationArea
-    // For now, we can perhaps just use alert or log, or refactor TranslationArea to accept props.
-    // I previously decided TranslationArea has internal state. 
-    // Let's rely on standard "New Translation" flow for now, or if I had time, lift state.
-    // For this MVP step, clicking history just copies it to clipboard or we leave it visual.
-    // Let's make it copy to clipboard for utility.
-    navigator.clipboard.writeText(item.sourceText);
-    alert("Source text copied to clipboard!");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleHistorySelect = (item: any) => {
+    setHistoryItem(item);
   };
 
   const handleExportAnki = () => {
@@ -61,7 +56,10 @@ export default function Home() {
           </div>
         </header>
 
-        <TranslationArea onTranslationComplete={handleTranslationComplete} />
+        <TranslationArea
+          onTranslationComplete={handleTranslationComplete}
+          selectedItem={historyItem}
+        />
       </div>
     </main>
   );

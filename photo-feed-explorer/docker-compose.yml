@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  photo-feed:
+    build: .
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./public/uploads:/app/public/uploads
+      - ./prisma:/app/prisma
+    environment:
+      - DATABASE_URL=file:/app/prisma/dev.db
+      - ADMIN_PASSWORD=supersecretpassword
+      - NODE_ENV=production
+    restart: always
