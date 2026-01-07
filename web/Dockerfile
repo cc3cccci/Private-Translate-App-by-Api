@@ -57,5 +57,5 @@ EXPOSE 3000
 
 ENV PORT 3000
 
-# Run migrations before starting the server
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+# Run migrations before starting the server (Retry loop for DB readiness)
+CMD ["sh", "-c", "echo 'Starting migration...'; until npx prisma migrate deploy; do echo 'Migration failed, retrying in 5s...'; sleep 5; done; echo 'Migration success!'; node server.js"]
