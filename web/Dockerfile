@@ -44,10 +44,18 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy Prisma schema for migrations
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+
+USER root
+# Install Prisma CLI for production migrations
+RUN npm install -g prisma
+
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT 3000
 
-CMD ["node", "server.js"]
+# Run migrations before starting the server
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
