@@ -35,12 +35,18 @@ If the input is a sentence, provide similar sentences. If it is a word, provide 
         const completion = await chatCompletion(selectedModel, messages);
         let content = completion.choices[0]?.message?.content?.trim() || '';
 
-        // Clean up markdown code blocks if present (common issue with LLMs)
+        // clean up markdown
         content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
 
         let parsedResult;
         try {
-            parsedResult = JSON.parse(content);
+            // Attempt to find JSON object if mixed with text
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                parsedResult = JSON.parse(jsonMatch[0]);
+            } else {
+                parsedResult = JSON.parse(content);
+            }
         } catch {
             // Fallback for non-JSON response
             parsedResult = {

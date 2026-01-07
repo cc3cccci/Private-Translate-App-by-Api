@@ -19,6 +19,7 @@ interface HistorySidebarProps {
 export default function HistorySidebar({ onSelect, refreshTrigger }: HistorySidebarProps) {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     useEffect(() => {
         fetchHistory();
@@ -34,6 +35,7 @@ export default function HistorySidebar({ onSelect, refreshTrigger }: HistorySide
             }
         } catch (e) {
             console.error(e);
+            setError("Failed to load");
         } finally {
             setLoading(false);
         }
@@ -51,7 +53,14 @@ export default function HistorySidebar({ onSelect, refreshTrigger }: HistorySide
                 flexDirection: "column",
             }}
         >
-            <h3 style={{ marginBottom: "1rem" }}>History</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <h3 style={{ margin: 0 }}>History</h3>
+                <button onClick={fetchHistory} style={{ fontSize: "0.8rem", padding: "0.2rem 0.5rem" }}>
+                    ↻
+                </button>
+            </div>
+
+            {error && <p style={{ color: "red", fontSize: "0.8rem" }}>{error}</p>}
 
             {loading && <p>Loading...</p>}
 
