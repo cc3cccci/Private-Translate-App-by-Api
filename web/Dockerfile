@@ -44,12 +44,13 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy Prisma schema for migrations
+# Copy Prisma schema and config for migrations
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 
 USER root
-# Install Prisma CLI for production migrations
-RUN npm install -g prisma
+# Install Prisma CLI and tsx (for loading prisma.config.ts)
+RUN npm install -g prisma tsx
 
 USER nextjs
 
