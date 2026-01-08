@@ -57,6 +57,8 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT 3000
+# Ensure global node modules (prisma, tsx) are resolvable by the app/scripts
+ENV NODE_PATH=/usr/local/lib/node_modules
 
 # Run migrations before starting the server (Retry loop for DB readiness)
 CMD ["sh", "-c", "echo 'Starting migration...'; until npx prisma migrate deploy; do echo 'Migration failed, retrying in 5s...'; sleep 5; done; echo 'Migration success!'; node server.js"]
