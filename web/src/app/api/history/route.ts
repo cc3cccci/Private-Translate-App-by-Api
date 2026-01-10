@@ -16,3 +16,12 @@ export async function GET() {
         return NextResponse.json({ error: 'Failed to fetch history' }, { status: 500 });
     }
 }
+
+export async function DELETE() {
+    try {
+        await prisma.translationHistory.deleteMany({});
+        return NextResponse.json({ success: true });
+    } catch {
+        return NextResponse.json({ error: 'Failed to delete history' }, { status: 500 });
+    }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 
 interface HistoryItem {
     id: string;
@@ -41,49 +42,63 @@ export default function HistorySidebar({ onSelect, refreshTrigger }: HistorySide
         }
     };
 
+    const clearHistory = async () => {
+        if (!confirm("Are you sure you want to clear all history?")) return;
+        setLoading(true);
+        try {
+            const res = await fetch("/api/history", { method: "DELETE" });
+            if (res.ok) {
+                setHistory([]);
+            }
+        } catch (e) {
+            console.error(e);
+            setError("Failed to delete");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <aside
-            style={{
-                width: "25%",
-                borderRight: "1px solid var(--border)",
-                height: "100%",
-                overflowY: "auto",
-                padding: "1rem",
-                display: "flex",
-                flexDirection: "column",
-            }}
-        >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <h3 style={{ margin: 0 }}>History</h3>
-                <button onClick={fetchHistory} style={{ fontSize: "0.8rem", padding: "0.2rem 0.5rem" }}>
-                    ↻
-                </button>
+        <aside className="w-80 h-full border-r border-border bg-bg-secondary/50 dark:bg-black/20 flex flex-col border-r shadow-sm backdrop-blur-sm z-10 transition-transform duration-300">
+            <div className="p-4 border-b border-border flex justify-between items-center bg-transparent">
+                <h3 className="font-semibold text-text-secondary uppercase text-xs tracking-wider">History</h3>
+                <div className="flex gap-1">
+                    <button
+                        onClick={clearHistory}
+                        className="p-1 hover:bg-red-100 hover:text-red-500 rounded-md transition-colors"
+                        title="Clear All"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                    <button
+                        onClick={fetchHistory}
+                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
+                        title="Refresh"
+                    >
+                        ↻
+                    </button>
+                </div>
             </div>
 
-            {error && <p style={{ color: "red", fontSize: "0.8rem" }}>{error}</p>}
+            <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+                {error && <p className="text-red-500 text-sm px-2">{error}</p>}
+                {loading && <p className="text-text-secondary text-sm px-2 animate-pulse">Loading...</p>}
+                {!loading && history.length === 0 && (
+                    <div className="text-center py-10 opacity-50">
+                        <p className="text-sm">No history yet</p>
+                    </div>
+                )}
 
-            {loading && <p>Loading...</p>}
-
-            {!loading && history.length === 0 && (
-                <p style={{ opacity: 0.5 }}>No history yet.</p>
-            )}
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {history.map((item) => (
                     <div
                         key={item.id}
                         onClick={() => onSelect(item)}
-                        style={{
-                            padding: "0.5rem",
-                            border: "1px solid var(--border)",
-                            cursor: "pointer",
-                            fontSize: "0.9rem",
-                        }}
+                        className="group p-3 rounded-lg border border-transparent hover:border-border hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm cursor-pointer transition-all duration-200"
                     >
-                        <div style={{ fontWeight: "bold", marginBottom: "0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div className="font-medium text-sm text-foreground mb-1 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400">
                             {item.sourceText}
                         </div>
-                        <div style={{ opacity: 0.8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div className="text-xs text-text-secondary line-clamp-1">
                             {item.translatedText}
                         </div>
                     </div>

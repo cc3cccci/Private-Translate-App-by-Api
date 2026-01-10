@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
             return new NextResponse(tsv, {
                 headers: {
                     'Content-Type': 'text/tab-separated-values',
-                    'Content-Disposition': 'attachment; filename="vocabulary_anki.txt"',
+                    'Content-Disposition': `attachment; filename="vocabulary_anki_${new Date().toISOString().split('T')[0]}.txt"`,
                 },
             });
         }

@@ -1,60 +1,76 @@
+@import "tailwindcss";
+
 :root {
-  --background: #FFFFFF;
-  --foreground: #000000;
-  --accent: #222222;
-  --border: #000000;
-  --hover: #f0f0f0;
+  /* Modern Minimalist Scheme (60-30-10) */
+  /* 60% Neutral Backgrounds */
+  --background: #ffffff;
+  --bg-secondary: #f9fafb;
+  /* gray-50 */
+  --bg-tertiary: #f3f4f6;
+  /* gray-100 */
+
+  /* 30% Primary Text/UI Elements */
+  --foreground: #111827;
+  /* gray-900 */
+  --text-secondary: #4b5563;
+  /* gray-600 */
+  --border: #e5e7eb;
+  /* gray-200 */
+
+  /* 10% Accent (Blue/Purple or Monochrome Dark) */
+  --accent: #2563eb;
+  /* blue-600 */
+  --accent-foreground: #ffffff;
+
+  /* Spacing Variables (8pt Grid reference) */
+  --spacing-1: 0.5rem;
+  /* 8px */
+  --spacing-2: 1rem;
+  /* 16px */
+  --spacing-3: 1.5rem;
+  /* 24px */
+  --spacing-4: 2rem;
+  /* 32px */
 }
 
-[data-theme='dark'] {
-  --background: #000000;
-  --foreground: #F8F8F8;
-  --accent: #dddddd;
-  --border: #F8F8F8;
-  --hover: #111111;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #030712;
+    /* gray-950 */
+    --bg-secondary: #111827;
+    /* gray-900 */
+    --bg-tertiary: #1f2937;
+    /* gray-800 */
+
+    --foreground: #f9fafb;
+    /* gray-50 */
+    --text-secondary: #d1d5db;
+    /* gray-300 */
+    --border: #374151;
+    /* gray-700 */
+
+    --accent: #3b82f6;
+    /* blue-500 */
+    --accent-foreground: #ffffff;
+  }
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-  padding: 0;
-  transition: background 0.2s, color 0.2s;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+  @apply antialiased min-h-screen flex flex-col;
 }
 
-* {
-  box-sizing: border-box;
+/* Glassmorphism Utilities */
+.frosted-glass {
+  @apply bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300;
 }
 
-button {
-  cursor: pointer;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--foreground);
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  transition: all 0.2s;
+.soft-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
-button:hover {
-  background: var(--foreground);
-  color: var(--background);
-}
-
-input, textarea, select {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--foreground);
-  padding: 0.5rem;
-  font-size: 1rem;
-  font-family: inherit;
-}
-
-textarea:focus, input:focus, select:focus {
-  outline: 2px solid var(--foreground);
-  border-color: transparent;
+.hover-lift {
+  @apply transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-lg;
 }
