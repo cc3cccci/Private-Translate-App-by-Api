@@ -8,7 +8,6 @@ import { Menu, X } from "lucide-react";
 export default function Home() {
   const [historyItem, setHistoryItem] = useState<{ sourceText: string; translatedText: string; sourceLang: string; targetLang: string } | null>(null);
   const [refreshHistory, setRefreshHistory] = useState(0);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleTranslationComplete = () => {
@@ -28,18 +27,8 @@ export default function Home() {
     window.location.href = "/api/vocabulary?export=anki";
   };
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }
-
   return (
-    <main className="flex h-screen bg-background text-foreground transition-colors duration-300 overflow-hidden relative">
+    <main className="flex h-screen bg-bg-secondary dark:bg-background text-foreground transition-colors duration-300 overflow-hidden relative">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
@@ -74,12 +63,7 @@ export default function Home() {
           </div>
 
           <div className="flex gap-2 md:gap-3">
-            <button
-              onClick={toggleTheme}
-              className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium bg-bg-tertiary hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600"
-            >
-              {theme === 'light' ? '🌙' : '☀️'}
-            </button>
+            {/* Theme toggle removed (Dark Mode Only) */}
             <button
               onClick={handleExportAnki}
               className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium bg-accent text-white hover:bg-blue-700 transition-all shadow-md hover:shadow-lg active:scale-95"

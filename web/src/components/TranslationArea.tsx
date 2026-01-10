@@ -102,7 +102,7 @@ export default function TranslationArea({ onTranslationComplete, selectedItem }:
             <div className="flex flex-col md:flex-row gap-4 md:gap-8 flex-1 min-h-[400px]">
                 {/* Source Input */}
                 <div className="flex-1 flex flex-col bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-border transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50">
-                    <div className="p-4 border-b border-border bg-bg-secondary/50 rounded-t-2xl flex justify-between items-center">
+                    <div className="p-4 border-b border-border bg-transparent rounded-t-2xl flex justify-between items-center">
                         <select
                             value={sourceLang}
                             onChange={(e) => setSourceLang(e.target.value)}
@@ -120,7 +120,7 @@ export default function TranslationArea({ onTranslationComplete, selectedItem }:
                     <textarea
                         value={sourceText}
                         onChange={(e) => setSourceText(e.target.value)}
-                        className="flex-1 w-full bg-transparent p-6 text-lg md:text-xl resize-none focus:outline-none placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                        className="flex-1 w-full bg-transparent p-6 text-lg md:text-xl resize-none focus:outline-none text-foreground placeholder:text-gray-400 dark:placeholder:text-gray-500"
                         placeholder="Enter text to translate..."
                         spellCheck={false}
                     />
@@ -142,8 +142,8 @@ export default function TranslationArea({ onTranslationComplete, selectedItem }:
                 </div>
 
                 {/* Target Output */}
-                <div className="flex-1 flex flex-col bg-bg-secondary/30 dark:bg-black/40 rounded-2xl border border-border">
-                    <div className="p-4 border-b border-border bg-bg-secondary/50 rounded-t-2xl flex justify-between items-center">
+                <div className="flex-1 flex flex-col bg-white dark:bg-black/40 rounded-2xl border border-border">
+                    <div className="p-4 border-b border-border bg-transparent rounded-t-2xl flex justify-between items-center">
                         <select
                             value={targetLang}
                             onChange={(e) => setTargetLang(e.target.value)}
